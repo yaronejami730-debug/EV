@@ -243,7 +243,7 @@ export default function ListingDetail({ listing, onBack, onOpenMessages, onOpenA
                   onClick={e => { e.stopPropagation(); toggleFav(); }}
                 >
                   <motion.div animate={isFav ? { scale: [1, 1.3, 1] } : {}} transition={{ duration: 0.3 }}>
-                    <Heart size={20} fill={isFav ? 'white' : 'none'} />
+                    <Heart size={20} fill={isFav ? '#ff6e14' : 'none'} color={isFav ? '#ff6e14' : 'white'} />
                   </motion.div>
                 </button>
                 <button className="gallery-share-btn" onClick={e => { e.stopPropagation(); handleShare(); }}>

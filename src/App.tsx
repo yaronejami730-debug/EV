@@ -345,6 +345,26 @@ function App() {
   }, [selectedListing, showMessages]);
 
 
+  // FAVORITES LOGIC
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('lbc_favorites') || '[]');
+    } catch { return []; }
+  });
+
+  const toggleFavorite = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!user) { setShowAuthModal(true); return; }
+    
+    setFavorites(prev => {
+      const isFav = prev.includes(id);
+      const next = isFav ? prev.filter(fid => fid !== id) : [...prev, id];
+      localStorage.setItem('lbc_favorites', JSON.stringify(next));
+      return next;
+    });
+  };
+
+
   useEffect(() => {
     localStorage.setItem('app_ads', JSON.stringify(ads));
   }, [ads]);
@@ -524,7 +544,12 @@ function App() {
                 <span className="desktop-only">Mes recherches</span>
               </button>
               <button className="nav-icon-btn">
-                <Heart size={24} />
+                <div style={{ position: 'relative' }}>
+                  <Heart size={24} />
+                  {favorites.length > 0 && (
+                    <span className="badge-notification">{favorites.length}</span>
+                  )}
+                </div>
                 <span className="desktop-only">Favoris</span>
               </button>
               <button 
@@ -875,8 +900,11 @@ function App() {
                             {viewedListings.has(listing.id) && (
                               <span className="badge-seen">Déjà vu</span>
                             )}
-                            <button className="btn-fav" onClick={(e) => e.stopPropagation()}>
-                              <Heart size={20} />
+                            <button 
+                              className={`btn-fav ${favorites.includes(listing.id) ? 'active' : ''}`} 
+                              onClick={(e) => toggleFavorite(e, listing.id)}
+                            >
+                              <Heart size={20} fill={favorites.includes(listing.id) ? '#ff6e14' : 'none'} color={favorites.includes(listing.id) ? '#ff6e14' : 'currentColor'} />
                             </button>
                           </div>
                           <div className="listing-body">

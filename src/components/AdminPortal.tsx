@@ -4,7 +4,8 @@ import {
   Plus, Filter, Edit2, 
   ExternalLink, Trash2,
   TrendingUp, TrendingDown,
-  ArrowLeft, Bell, Search as SearchIcon
+  ArrowLeft, Bell, Search as SearchIcon,
+  Clock, PlusSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,6 +25,7 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
   const [newAdPhotos, setNewAdPhotos] = useState<string[]>([]);
   const [newAdUrl, setNewAdUrl] = useState('');
   const [newAdWeight, setNewAdWeight] = useState(1);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
 
 
@@ -54,14 +56,41 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
     setNewAdUrl('');
   };
 
+  const analyzeUrl = (url: string) => {
+    if (!url || !url.startsWith('http')) return;
+    setIsAnalyzing(true);
+    
+    try {
+      const hostname = new URL(url).hostname.replace('www.', '');
+      const siteName = hostname.split('.')[0];
+      const capitalized = siteName.charAt(0).toUpperCase() + siteName.slice(1);
 
+      setTimeout(() => {
+        setNewAdName(`Promo ${capitalized} — Offre Limitée`);
+        setNewAdImage(`https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=400&auto=format&fit=crop`);
+        setNewAdMetadata(`Profitez d’offres exclusives sur ${hostname}. Visitez notre site maintenant !`);
+        setIsAnalyzing(false);
+      }, 1200);
+    } catch {
+      setIsAnalyzing(false);
+    }
+  };
+
+
+
+  const totalViews = ads.reduce((acc, a) => acc + (a.views || 0), 0);
+  const totalClicks = ads.reduce((acc, a) => acc + (a.clicks || 0), 0);
+  const avgCtr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : '0.00';
+  const estimatedRevenue = (totalClicks * 0.15).toLocaleString('fr-FR', { minimumFractionDigits: 2 }); // Mock 0.15€ per click
 
   const stats = [
-    { label: 'Revenus Publicitaires', value: '14,250.00 €', trend: '+12.5%', isUp: true },
-    { label: 'Expositions Totales', value: '1.2M', trend: '+5.2%', isUp: true },
-    { label: 'Clics Moyens', value: '45,800', trend: '-2.1%', isUp: false },
-    { label: 'CTR Moyen', value: '2.45%', trend: '+0.8%', isUp: true },
+    { label: 'Revenus Publicitaires (Est.)', value: `${estimatedRevenue} €`, trend: '+12.5%', isUp: true },
+    { label: 'Expositions Totales', value: totalViews >= 1000000 ? `${(totalViews / 1000000).toFixed(1)}M` : totalViews.toLocaleString(), trend: '+5.2%', isUp: true },
+    { label: 'Clics Totaux', value: totalClicks.toLocaleString(), trend: '-2.1%', isUp: false },
+    { label: 'CTR Moyen', value: `${avgCtr}%`, trend: '+0.8%', isUp: true },
   ];
+
+  const [editingAd, setEditingAd] = useState<any | null>(null);
 
   return (
     <div className="admin-root">
@@ -235,6 +264,95 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                       </div>
                    </div>
                 )}
+                {/* Edit Ad Modal */}
+                {editingAd && (
+                   <div className="admin-inner-modal">
+                      <div className="admin-inner-modal-box">
+                         <h3>Modifier la Publicité</h3>
+                         <div className="admin-form-group">
+                            <label>Nom de la campagne</label>
+                            <input 
+                              type="text" 
+                              value={editingAd.name} 
+                              onChange={e => setEditingAd({ ...editingAd, name: e.target.value })} 
+                            />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>Priorité / Poids (Budget)</label>
+                            <input 
+                              type="number" 
+                              value={editingAd.weight} 
+                              onChange={e => setEditingAd({ ...editingAd, weight: Number(e.target.value) })} 
+                              min="1" 
+                            />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>URL de destination</label>
+                            <input 
+                              type="text" 
+                              value={editingAd.url} 
+                              onChange={e => setEditingAd({ ...editingAd, url: e.target.value })} 
+                            />
+                         </div>
+                         <div className="admin-inner-modal-actions">
+                            <button className="btn-cancel" onClick={() => setEditingAd(null)}>Annuler</button>
+                            <button 
+                              className="btn-confirm" 
+                              onClick={() => {
+                                setAds(ads.map(a => a.id === editingAd.id ? editingAd : a));
+                                setEditingAd(null);
+                              }}
+                            >Enregistrer</button>
+                         </div>
+                      </div>
+                   </div>
+                )}
+
+
+                {/* Edit Ad Modal */}
+                {editingAd && (
+                   <div className="admin-inner-modal">
+                      <div className="admin-inner-modal-box">
+                         <h3>Modifier la Publicité</h3>
+                         <div className="admin-form-group">
+                            <label>Nom de la campagne</label>
+                            <input 
+                              type="text" 
+                              value={editingAd.name} 
+                              onChange={e => setEditingAd({ ...editingAd, name: e.target.value })} 
+                            />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>Priorité / Poids (Budget)</label>
+                            <input 
+                              type="number" 
+                              value={editingAd.weight} 
+                              onChange={e => setEditingAd({ ...editingAd, weight: Number(e.target.value) })} 
+                              min="1" 
+                            />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>URL de destination</label>
+                            <input 
+                              type="text" 
+                              value={editingAd.url} 
+                              onChange={e => setEditingAd({ ...editingAd, url: e.target.value })} 
+                            />
+                         </div>
+                         <div className="admin-inner-modal-actions">
+                            <button className="btn-secondary-simple" onClick={() => setEditingAd(null)}>Annuler</button>
+                            <button 
+                              className="btn-primary-simple" 
+                              onClick={() => {
+                                setAds(ads.map(a => a.id === editingAd.id ? editingAd : a));
+                                setEditingAd(null);
+                              }}
+                            >Enregistrer</button>
+                         </div>
+                      </div>
+                   </div>
+                )}
+
 
                 {/* Stats Cards */}
                 <div className="admin-stats-row">
@@ -307,19 +425,22 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                           <td><span className="date-td">{ad.startDate}</span></td>
                           <td>
                             <div className="table-actions">
-                              <button
-                                title={ad.status === 'active' ? 'Mettre en pause' : 'Activer'}
-                                onClick={() => setAds(ads.map(a => a.id === ad.id ? { ...a, status: a.status === 'active' ? 'paused' : 'active' } : a))}
+                              <button 
+                                title="Éditer"
+                                onClick={() => setEditingAd(ad)}
                               >
                                 <Edit2 size={16} />
                               </button>
-                              <button title="Ouvrir le lien" onClick={() => ad.url && window.open(ad.url, '_blank')}>
-                                <ExternalLink size={16} />
+                              <button 
+                                title={ad.status === 'active' ? 'Pause' : 'Activer'} 
+                                onClick={() => setAds(ads.map(a => a.id === ad.id ? { ...a, status: a.status === 'active' ? 'paused' : 'active' } : a))}
+                              >
+                                {ad.status === 'active' ? <Clock size={16} /> : <TrendingUp size={16} />}
                               </button>
-                              <button
-                                className="delete"
+                              <button 
+                                className="delete" 
                                 title="Supprimer"
-                                onClick={() => setAds(ads.filter(a => a.id !== ad.id))}
+                                onClick={() => { if(window.confirm('Supprimer cette campagne ?')) setAds(ads.filter(a => a.id !== ad.id)); }}
                               >
                                 <Trash2 size={16} />
                               </button>
