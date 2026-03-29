@@ -3470,6 +3470,54 @@
 
 .side-banner:hover { transform: scale(1.02); }
 
+.sky-ad-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.sky-ad-label {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sky-ad-btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.sky-ad-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sidebar-ad-btn {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+
 .side-banner-left { left: calc(50% - 740px); }
 .side-banner-right { right: calc(50% - 740px); }
 
@@ -4719,4 +4767,85 @@
     padding: 0 16px;
   }
 }
+/* Sidebar Ad Card (Desktop) */
+.sidebar-ad-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 24px;
+}
 
+.sidebar-ad-header {
+  margin-bottom: 12px;
+}
+
+.promoted-tag-mini {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-ad-content {
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.sidebar-ad-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f0f2f5;
+}
+
+.sidebar-ad-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-ad-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.sidebar-ad-tagline {
+  font-size: 12px;
+  color: #64748b;
+}/* Header Main Nav (Accueil) */
+.header-main-nav {
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  border-left: 1px solid var(--border);
+  padding-left: 20px;
+}
+
+.nav-link-main {
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-link-main:hover {
+  background: #f0f2f5;
+}
+
+.nav-link-main.active {
+  color: var(--primary);
+  font-weight: 700;
+  background: var(--primary-bg);
+}

@@ -58,7 +58,9 @@ interface Ad {
   description?: string;
   tagline?: string;
   url?: string;
+  weight: number; // For prioritization (budget-based)
 }
+
 
 
 
@@ -197,9 +199,25 @@ const DEFAULT_ADS: any[] = [
      startDate: '20/03/2026',
      description: 'Nos conseillers vous accompagnent de A à Z dans votre projet de création d’Entreprise',
      tagline: 'Shine',
-     url: 'https://shine.fr'
+     url: 'https://shine.fr',
+     weight: 10 // High priority
+  },
+  {
+     id: 'ad4',
+     name: 'Nike Air Max 2026',
+     type: 'promoted',
+     status: 'active',
+     views: 1560,
+     clicks: 92,
+     ctr: '5.9%',
+     imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&auto=format',
+     startDate: '22/03/2026',
+     url: 'https://nike.com',
+     weight: 5 // Medium priority
   }
 ];
+
+
 
 
 
@@ -245,9 +263,87 @@ function App() {
   const [ads, setAds] = useState<Ad[]>(() => {
     try {
       const stored = localStorage.getItem('app_ads');
-      return stored ? JSON.parse(stored) : DEFAULT_ADS;
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         if (parsed.length < DEFAULT_ADS.length) return DEFAULT_ADS.map(a => ({ ...a, weight: a.weight || 1 }));
+         return parsed;
+      }
+      return DEFAULT_ADS;
     } catch { return DEFAULT_ADS; }
   });
+
+  // Weighted Selection Utility
+  const getWeightedAd = (type: 'skyscrapper' | 'promoted' | 'banner', currentAds: Ad[]) => {
+    const filtered = currentAds.filter(a => a.type === type && a.status === 'active');
+    if (filtered.length === 0) return null;
+    
+    const totalWeight = filtered.reduce((acc, ad) => acc + (ad.weight || 1), 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const ad of filtered) {
+       if (random < (ad.weight || 1)) return ad;
+       random -= (ad.weight || 1);
+    }
+    return filtered[0];
+  };
+
+  // Tracking functions — update views/clicks/CTR in real time
+  const trackAdImpression = (adId: string) => {
+    setAds(prev => prev.map(ad => {
+      if (ad.id !== adId) return ad;
+      const views = ad.views + 1;
+      const ctr = views > 0 ? `${((ad.clicks / views) * 100).toFixed(1)}%` : '0%';
+      return { ...ad, views, ctr };
+    }));
+  };
+
+  const trackAdClick = (ad: Ad) => {
+    setAds(prev => prev.map(a => {
+      if (a.id !== ad.id) return a;
+      const clicks = a.clicks + 1;
+      const ctr = a.views > 0 ? `${((clicks / a.views) * 100).toFixed(1)}%` : '0%';
+      return { ...a, clicks, ctr };
+    }));
+    if (ad.url && ad.url !== '#') {
+      window.open(ad.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  // Rotation State (IDs of currently displayed ads)
+  const [activeSkyLeft, setActiveSkyLeft] = useState<Ad | null>(null);
+  const [activeSkyRight, setActiveSkyRight] = useState<Ad | null>(null);
+  const [activeFeedBanner, setActiveFeedBanner] = useState<Ad | null>(null);
+
+  // Initial & Periodic Rotation + impression tracking
+  useEffect(() => {
+    const rotate = () => {
+      const left = getWeightedAd('skyscrapper', ads);
+      const right = getWeightedAd('skyscrapper', ads);
+      const banner = getWeightedAd('banner', ads);
+      setActiveSkyLeft(left);
+      setActiveSkyRight(right);
+      setActiveFeedBanner(banner);
+      if (left) trackAdImpression(left.id);
+      if (right && right.id !== left?.id) trackAdImpression(right.id);
+      if (banner) trackAdImpression(banner.id);
+    };
+
+    rotate();
+    const interval = setInterval(rotate, 10000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Page Title Update
+  useEffect(() => {
+    if (selectedListing) {
+      document.title = `${selectedListing.title} | Entre Voisins`;
+    } else if (showMessages) {
+      document.title = 'Messages | Entre Voisins';
+    } else {
+      document.title = 'Accueil | Entre Voisins';
+    }
+  }, [selectedListing, showMessages]);
+
 
   useEffect(() => {
     localStorage.setItem('app_ads', JSON.stringify(ads));
@@ -340,32 +436,35 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* Side Banners (Live Skyscrapers) - Show on all views */}
-      <div className="side-banner side-banner-left desktop-only">
-        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').slice(0, 1).map(ad => (
-           <a key={ad.id} href={ad.url || "#"} target="_blank" rel="noopener noreferrer">
-              <img src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
-           </a>
-        ))}
-        {!ads.some(a => a.type === 'skyscrapper' && a.status === 'active') && (
-           <div className="skyscraper-placeholder-mini">Publicité</div>
-        )}
-      </div>
-      <div className="side-banner side-banner-right desktop-only">
-        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').length > 0 && (
-           <a href={ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[1]?.url || ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[0]?.url || "#"} target="_blank" rel="noopener noreferrer">
-              <img 
-                 src={ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[1]?.imageUrl || ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[0]?.imageUrl} 
-                 alt="Publicité" 
-                 className="ad-img-full" 
-              />
-           </a>
-        )}
-        {!ads.some(a => a.type === 'skyscrapper' && a.status === 'active') && (
-           <div className="skyscraper-placeholder-mini">Publicité</div>
-        )}
-      </div>
-
+      {/* Side Banners (Live Skyscrapers) - Show on all views except Detail and Messaging */}
+      {!selectedListing && !showMessages && (
+        <>
+          <div className="side-banner side-banner-left desktop-only">
+            {activeSkyLeft ? (
+              <div className="sky-ad-wrap">
+                <span className="sky-ad-label">Sponsorisé</span>
+                <button className="sky-ad-btn" onClick={() => trackAdClick(activeSkyLeft)}>
+                  <img src={activeSkyLeft.imageUrl} alt={activeSkyLeft.name} className="ad-img-full" />
+                </button>
+              </div>
+            ) : (
+              <div className="skyscraper-placeholder-mini">Publicité</div>
+            )}
+          </div>
+          <div className="side-banner side-banner-right desktop-only">
+            {activeSkyRight ? (
+              <div className="sky-ad-wrap">
+                <span className="sky-ad-label">Sponsorisé</span>
+                <button className="sky-ad-btn" onClick={() => trackAdClick(activeSkyRight)}>
+                  <img src={activeSkyRight.imageUrl} alt={activeSkyRight.name} className="ad-img-full" />
+                </button>
+              </div>
+            ) : (
+              <div className="skyscraper-placeholder-mini">Publicité</div>
+            )}
+          </div>
+        </>
+      )}
 
 
       {/* Header */}
@@ -374,9 +473,18 @@ function App() {
           <button className="menu-btn mobile-only">
             <Menu size={24} />
           </button>
-          <a href="/" className="logo" onClick={(e) => { e.preventDefault(); setSelectedListing(null); setShowMessages(false); }}>
+          <a href="/" className="logo" onClick={(e) => { e.preventDefault(); setSelectedListing(null); setShowMessages(false); setShowMyListings(false); }}>
             Entre Voisins
           </a>
+          <nav className="header-main-nav desktop-only">
+            <button 
+              className={`nav-link-main ${!selectedListing && !showMessages && !showMyListings ? 'active' : ''}`}
+              onClick={() => { setSelectedListing(null); setShowMessages(false); setShowMyListings(false); }}
+            >
+              Accueil
+            </button>
+          </nav>
+
           {!showMessages && (
             <button className="btn-post desktop-only" onClick={() => setShowCreateModal(true)}>
               <PlusSquare size={18} />
@@ -676,50 +784,51 @@ function App() {
                 </div>
               </section>
 
-              {/* Advertisers / Promoted Section */}
-              {/* Live Promoted Section */}
-              {ads.some(a => a.type === 'promoted' && a.status === 'active') && (
-                <section className="container ads-container">
-                  <div className="promoted-header">
-                    <span className="promoted-tag">Sponsorisé</span>
-                  </div>
-                  <div className="promoted-grid">
-                    {ads.filter(a => a.type === 'promoted' && a.status === 'active').map((ad) => (
-                      <div key={ad.id} className="promoted-card-mini">
-                        <div className="promoted-img-wrapper">
-                           <img src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
-                        </div>
-                        <p>{ad.name}</p>
-                        <span className="promoted-link">sponsorisé</span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+               {/* Advertisers / Promoted Section (Weighted Selection) */}
+               {ads.some(a => a.type === 'promoted' && a.status === 'active') && (
+                 <section className="container ads-container">
+                   <div className="promoted-header">
+                     <span className="promoted-tag">Sponsorisé Nom de la Campagne</span>
+                   </div>
+                   <div className="promoted-grid">
+                     {/* Show up to 4 rotated promoted ads */}
+                     {Array.from({ length: Math.min(4, ads.filter(a => a.type === 'promoted' && a.status === 'active').length) }).map((_, i) => {
+                       const ad = getWeightedAd('promoted', ads);
+                       if (!ad) return null;
+                       return (
+                         <a key={`${ad.id}-${i}`} href={ad.url || "#"} target="_blank" rel="noopener noreferrer" className="promoted-card-mini">
+                           <div className="promoted-img-wrapper">
+                              <img src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+                           </div>
+                           <p>{ad.name}</p>
+                           <span className="promoted-link">sponsorisé</span>
+                         </a>
+                       );
+                     })}
+                   </div>
+                 </section>
+               )}
 
               {/* Feed Banners (Banner type ads, matching leboncoin mobile feed) */}
-              {ads.some(a => a.type === 'banner' && a.status === 'active') && (
+              {activeFeedBanner && (
                 <section className="container sponsored-banners-section">
-                  {ads.filter(a => a.type === 'banner' && a.status === 'active').map(ad => (
-                    <a key={ad.id} href={ad.url || "#"} target="_blank" rel="noopener noreferrer" className="promoted-banner-feed-link">
-                      <div className="promoted-banner-feed">
-                        <div className="promoted-banner-content">
-                          <div className="ad-mini-logo">
-                            {ad.tagline?.charAt(0) || 'A'}
-                          </div>
-                          <div className="promoted-banner-main">
-                             <h4>{ad.name}</h4>
-                             <p className="ad-description-mini">{ad.description}</p>
-                             <span className="promoted-banner-tag-text">{ad.tagline || 'Sponsorisé'}</span>
-                          </div>
-                          <button className="btn-banner-open">
-                            Ouvrir <span>›</span>
-                          </button>
+                  <a href={activeFeedBanner.url || "#"} target="_blank" rel="noopener noreferrer" className="promoted-banner-feed-link">
+                    <div className="promoted-banner-feed">
+                      <div className="promoted-banner-content">
+                        <div className="ad-mini-logo">
+                          {activeFeedBanner.tagline?.charAt(0) || 'A'}
                         </div>
+                        <div className="promoted-banner-main">
+                           <h4>{activeFeedBanner.name}</h4>
+                           <p className="ad-description-mini">{activeFeedBanner.description}</p>
+                           <span className="promoted-banner-tag-text">{activeFeedBanner.tagline || 'Sponsorisé'}</span>
+                        </div>
+                        <button className="btn-banner-open">
+                          Ouvrir <span>›</span>
+                        </button>
                       </div>
-                    </a>
-                  ))}
-
+                    </div>
+                  </a>
                 </section>
               )}
 
@@ -822,10 +931,12 @@ function App() {
                 onOpenAuth={() => setShowAuthModal(true)}
                 onSelectListing={(l) => setSelectedListing(l)}
                 isLoggedIn={!!user}
-                similarListings={LISTINGS.filter(l =>
-                  l.id !== selectedListing.id &&
-                  l.category_slug === selectedListing.category_slug
-                )}
+                  similarListings={LISTINGS.filter(l => 
+                    l.id !== selectedListing.id && 
+                    l.category_slug === selectedListing.category_slug
+                  )}
+                  ads={ads}
+                  onAdClick={trackAdClick}
               />
             </motion.div>
           )}

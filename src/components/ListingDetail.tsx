@@ -39,7 +39,10 @@ interface Props {
   onSelectListing: (listing: Listing) => void;
   isLoggedIn: boolean;
   similarListings?: Listing[];
+  ads?: any[];
+  onAdClick?: (ad: any) => void;
 }
+
 
 // ─── Lightbox ───────────────────────────────
 function Lightbox({ images, index, onClose, onPrev, onNext }: {
@@ -110,7 +113,7 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
 }
 
 // ─── Main component ──────────────────────────
-export default function ListingDetail({ listing, onBack, onOpenMessages, onOpenAuth, onSelectListing, isLoggedIn, similarListings = [] }: Props) {
+export default function ListingDetail({ listing, onBack, onOpenMessages, onOpenAuth, onSelectListing, isLoggedIn, similarListings = [], ads = [], onAdClick }: Props) {
   const [activePhoto, setActivePhoto] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isFav, setIsFav] = useState(() => {
@@ -119,6 +122,28 @@ export default function ListingDetail({ listing, onBack, onOpenMessages, onOpenA
   });
   const [copied, setCopied] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
+
+  // ── Weighted ad rotation for sidebar ──
+  const [sidebarAd, setSidebarAd] = useState<any | null>(null);
+
+  useEffect(() => {
+    function pickWeighted(pool: any[]) {
+      const active = pool.filter(a => a.status === 'active');
+      if (!active.length) return null;
+      const total = active.reduce((s, a) => s + (a.weight || 1), 0);
+      let r = Math.random() * total;
+      for (const a of active) {
+        r -= (a.weight || 1);
+        if (r <= 0) return a;
+      }
+      return active[0];
+    }
+    const banners = ads.filter(a => a.type === 'banner');
+    const pick = pickWeighted(banners);
+    setSidebarAd(pick);
+    const id = setInterval(() => setSidebarAd(pickWeighted(banners)), 12000);
+    return () => clearInterval(id);
+  }, [ads]);
 
   const images = listing.images ?? [listing.images];
   const shortDesc = listing.description
@@ -436,6 +461,29 @@ export default function ListingDetail({ listing, onBack, onOpenMessages, onOpenA
               <Flag size={16} />
               Signaler
             </button>
+          </div>
+
+          {/* Ad Slot — rotating weighted banner */}
+          <div className="sidebar-ad-card">
+            <div className="sidebar-ad-header">
+              <span className="promoted-tag-mini">Sponsorisé</span>
+            </div>
+            {sidebarAd ? (
+              <button
+                className="sidebar-ad-content sidebar-ad-btn"
+                onClick={() => onAdClick?.(sidebarAd)}
+              >
+                <div className="sidebar-ad-img">
+                  <img src={sidebarAd.imageUrl} alt={sidebarAd.name} />
+                </div>
+                <div className="sidebar-ad-text">
+                  <p className="sidebar-ad-name">{sidebarAd.name}</p>
+                  <p className="sidebar-ad-tagline">{sidebarAd.tagline || 'Partenaire'}</p>
+                </div>
+              </button>
+            ) : (
+              <div className="skyscraper-placeholder-mini" style={{ height: '140px' }}>Publicité</div>
+            )}
           </div>
 
           {/* ID */}

@@ -22,6 +22,8 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
   const [newAdType, setNewAdType] = useState<'skyscrapper' | 'promoted' | 'banner'>('promoted');
   const [newAdMetadata, setNewAdMetadata] = useState('');
   const [newAdPhotos, setNewAdPhotos] = useState<string[]>([]);
+  const [newAdUrl, setNewAdUrl] = useState('');
+  const [newAdWeight, setNewAdWeight] = useState(1);
 
 
 
@@ -38,7 +40,9 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
        imageUrl: newAdImage || 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=400&fit=crop',
        startDate: new Date().toLocaleDateString('fr-FR'),
        metadata: newAdMetadata,
-       photos: newAdPhotos
+       photos: newAdPhotos,
+       url: newAdUrl || '#',
+       weight: Number(newAdWeight) || 1
     };
 
     setAds([ad, ...ads]);
@@ -47,6 +51,7 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
     setNewAdImage('');
     setNewAdMetadata('');
     setNewAdPhotos([]);
+    setNewAdUrl('');
   };
 
 
@@ -165,6 +170,14 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                             </select>
                          </div>
                          <div className="admin-form-group">
+                            <label>URL de redirection (Lien du site)</label>
+                            <input type="text" value={newAdUrl} onChange={e => setNewAdUrl(e.target.value)} placeholder="https://www.exemple.com" />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>Priorité / Budget (1 = Normal, 10 = Max)</label>
+                            <input type="number" value={newAdWeight} onChange={e => setNewAdWeight(Number(e.target.value))} min="1" max="100" />
+                         </div>
+                         <div className="admin-form-group">
                             <label>Photos Additionnelles</label>
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                                {newAdPhotos.map((p, idx) => (
@@ -258,6 +271,7 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                         <th>Statut</th>
                         <th>Performance</th>
                         <th>CTR</th>
+                        <th>Priorité</th>
                         <th>Lancée le</th>
                         <th></th>
                       </tr>
@@ -267,7 +281,7 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                         <tr key={ad.id}>
                           <td>
                             <div className="ad-td-name">
-                              <img src={ad.thumbnail} alt="" />
+                              <img src={ad.imageUrl} alt={ad.name} />
                               <span>{ad.name}</span>
                             </div>
                           </td>
@@ -289,12 +303,26 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                             </div>
                           </td>
                           <td><span className="ctr-val">{ad.ctr}</span></td>
+                          <td><span className="weight-td" style={{ fontWeight: 800, color: 'var(--primary)' }}>×{ad.weight || 1}</span></td>
                           <td><span className="date-td">{ad.startDate}</span></td>
                           <td>
                             <div className="table-actions">
-                              <button title="Éditer"><Edit2 size={16} /></button>
-                              <button title="Détails"><ExternalLink size={16} /></button>
-                              <button className="delete" title="Supprimer"><Trash2 size={16} /></button>
+                              <button
+                                title={ad.status === 'active' ? 'Mettre en pause' : 'Activer'}
+                                onClick={() => setAds(ads.map(a => a.id === ad.id ? { ...a, status: a.status === 'active' ? 'paused' : 'active' } : a))}
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button title="Ouvrir le lien" onClick={() => ad.url && window.open(ad.url, '_blank')}>
+                                <ExternalLink size={16} />
+                              </button>
+                              <button
+                                className="delete"
+                                title="Supprimer"
+                                onClick={() => setAds(ads.filter(a => a.id !== ad.id))}
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </div>
                           </td>
                         </tr>
