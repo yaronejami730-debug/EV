@@ -18,8 +18,11 @@ import {
   Gamepad,
   Coffee,
   Truck,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  Star
 } from 'lucide-react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import MessagingView from './components/MessagingView';
 import CreateListingModal from './components/CreateListingModal';
@@ -52,9 +55,156 @@ interface Ad {
   ctr: string;
   imageUrl: string;
   startDate: string;
+  description?: string;
+  tagline?: string;
+  url?: string;
 }
 
-const LISTINGS: any[] = [];
+
+
+
+const LISTINGS: any[] = [
+  {
+    id: 'l1',
+    title: 'BMW Série 3 - 320d M Sport',
+    price: 32500,
+    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Bordeaux (33000)',
+    created_at: 'Hier, 18:45',
+    category_slug: 'auto',
+    description: 'Magnifique BMW Série 3 en excellent état. Full options, pack M Sport, entretien exclusif BMW. Faible kilométrage. Disponible immédiatement.',
+    delivery: false,
+    pro: true,
+    seller: { full_name: 'Garage Prestige 33', rating_avg: 4.8, avatar_url: null }
+  },
+  {
+    id: 'l2',
+    title: 'Sculpture The Mandalorian - Edition Limitée',
+    price: 450,
+    image: 'https://images.unsplash.com/photo-1623939012339-5b3fc9bb8c5c?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Lyon (69002)',
+
+    created_at: 'Aujourd\'hui, 10:20',
+    category_slug: 'recreation',
+    description: 'Pièce de collection rare. Sculpture détaillée de Din Djarin avec Grogu. Parfait état, carton d\'origine fourni.',
+    delivery: true,
+    pro: false,
+    seller: { full_name: 'Lucas G.', rating_avg: 5.0, avatar_url: 'https://i.pravatar.cc/150?u=lucas' }
+  },
+  {
+    id: 'l3',
+    title: 'Appartement T3 - Vue Mer',
+    price: 1250,
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Marseille (13007)',
+    created_at: 'Il y a 2h',
+    category_slug: 'realestate',
+    description: 'Superbe T3 traversant avec vue imprenable sur le Vieux-Port. Entièrement rénové, cuisine équipée, balcon.',
+    delivery: false,
+    pro: true,
+    seller: { full_name: 'Immo Provence', rating_avg: 4.5, avatar_url: null }
+  },
+  {
+    id: 'l4',
+    title: 'MacBook Pro M3 Max - 32Go RAM',
+    price: 2800,
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Paris (75015)',
+    created_at: 'Hier, 14:12',
+    category_slug: 'tech',
+    description: 'Dernière génération de MacBook Pro. Performance extrême pour montage vidéo et 3D. Comme neuf, sous garantie.',
+    delivery: true,
+    pro: false,
+    seller: { full_name: 'Sarah M.', rating_avg: 4.9, avatar_url: 'https://i.pravatar.cc/150?u=sarah' }
+  },
+  {
+    id: 'l5',
+    title: 'Canapé Design velours vert',
+    price: 600,
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Nantes (44000)',
+    created_at: 'Il y a 5h',
+    category_slug: 'home',
+    description: 'Canapé 3 places très confortable. Velours de haute qualité, style moderne. Très peu servi.',
+    delivery: false,
+    pro: false,
+    seller: { full_name: 'Julie D.', rating_avg: 4.7, avatar_url: 'https://i.pravatar.cc/150?u=julie' }
+  },
+  {
+    id: 'l6',
+    title: 'Rolex Submariner Date',
+    price: 14500,
+    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Cannes (06400)',
+    created_at: 'Hier, 09:30',
+    category_slug: 'fashion',
+    description: 'Montre iconique, full set (boîte et papiers). État exceptionnel. Expertise possible en boutique.',
+    delivery: false,
+    pro: true,
+    seller: { full_name: 'Luxe Horlogerie', rating_avg: 4.9, avatar_url: null }
+  },
+  {
+    id: 'l7',
+    title: 'Lot de vêtements, taille L à la taille XXL',
+    price: 200,
+    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=800',
+    location_city: 'Paris (75019)',
+
+
+    created_at: '20 mars 2026',
+    category_slug: 'fashion',
+    description: '📌 Description détaillée\n🛍️ Contenu : Ballot de vêtements pour homme, principalement des t-shirts.\n📏 Tailles : De L à XXL\n🎨 Couleurs : Variées\n✨ État : Bon état général, certains articles quasi neufs.\n\n💵 Prix attractif : 200€ seulement pour un lot conséquent !\n\n🚚 Expédition : Possibilité d\'envoi rapide ou remise en main propre selon votre localisation.',
+    delivery: true,
+    pro: false,
+    seller: { full_name: 'Yaron J.', rating_avg: 4.9, avatar_url: 'https://i.pravatar.cc/150?u=yaron' }
+  }
+];
+
+const DEFAULT_ADS: any[] = [
+  {
+     id: 'ad1',
+     name: 'Promo Été 2026',
+     type: 'skyscrapper',
+     status: 'active',
+     views: 1240,
+     clicks: 85,
+     ctr: '6.8%',
+     imageUrl: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&h=1000&auto=format',
+     startDate: '01/03/2026',
+     url: 'https://google.com'
+  },
+  {
+     id: 'ad2',
+     name: 'Nouveau Samsung S25',
+     type: 'skyscrapper',
+     status: 'active',
+     views: 890,
+     clicks: 42,
+     ctr: '4.7%',
+     imageUrl: 'https://images.unsplash.com/photo-1533481235975-f92a40e15916?w=600&h=1000&auto=format',
+     startDate: '15/03/2026',
+     url: 'https://samsung.com'
+  },
+  {
+     id: 'ad3',
+     name: 'Lancez-vous avec Shine',
+     type: 'banner',
+     status: 'active',
+     views: 4500,
+     clicks: 310,
+     ctr: '6.9%',
+     imageUrl: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=800&h=400&auto=format',
+     startDate: '20/03/2026',
+     description: 'Nos conseillers vous accompagnent de A à Z dans votre projet de création d’Entreprise',
+     tagline: 'Shine',
+     url: 'https://shine.fr'
+  }
+];
+
+
+
+
+
 
 function App() {
   const { user, loading } = useAuth();
@@ -63,7 +213,12 @@ function App() {
   const [location, setLocation] = useState('');
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showMessages, setShowMessages] = useState(false);
+  const [showMyListings, setShowMyListings] = useState(false);
+  const [myListings, setMyListings] = useState([LISTINGS[6], ...LISTINGS.slice(0, 3)]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(
     () => window.location.hash === '#admin'
@@ -87,7 +242,17 @@ function App() {
     setIsAdminOpen(false);
   }
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
-  const [ads, setAds] = useState<Ad[]>([]);
+  const [ads, setAds] = useState<Ad[]>(() => {
+    try {
+      const stored = localStorage.getItem('app_ads');
+      return stored ? JSON.parse(stored) : DEFAULT_ADS;
+    } catch { return DEFAULT_ADS; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('app_ads', JSON.stringify(ads));
+  }, [ads]);
+
   const [titleOnly, setTitleOnly] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     try {
@@ -175,23 +340,33 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* Side Banners (Live Skyscrapers) */}
+      {/* Side Banners (Live Skyscrapers) - Show on all views */}
       <div className="side-banner side-banner-left desktop-only">
         {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').slice(0, 1).map(ad => (
-           <img key={ad.id} src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+           <a key={ad.id} href={ad.url || "#"} target="_blank" rel="noopener noreferrer">
+              <img src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+           </a>
         ))}
         {!ads.some(a => a.type === 'skyscrapper' && a.status === 'active') && (
            <div className="skyscraper-placeholder-mini">Publicité</div>
         )}
       </div>
       <div className="side-banner side-banner-right desktop-only">
-        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').slice(1, 2).map(ad => (
-           <img key={ad.id} src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
-        ))}
-        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').length < 2 && (
+        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').length > 0 && (
+           <a href={ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[1]?.url || ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[0]?.url || "#"} target="_blank" rel="noopener noreferrer">
+              <img 
+                 src={ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[1]?.imageUrl || ads.filter(a => a.type === 'skyscrapper' && a.status === 'active')[0]?.imageUrl} 
+                 alt="Publicité" 
+                 className="ad-img-full" 
+              />
+           </a>
+        )}
+        {!ads.some(a => a.type === 'skyscrapper' && a.status === 'active') && (
            <div className="skyscraper-placeholder-mini">Publicité</div>
         )}
       </div>
+
+
 
       {/* Header */}
       <header className="header">
@@ -234,28 +409,34 @@ function App() {
         </div>
 
         <div className="header-right">
-          <button className="nav-icon-btn">
-            <Bell size={24} />
-            <span className="desktop-only">Mes recherches</span>
-          </button>
-          <button className="nav-icon-btn">
-            <Heart size={24} />
-            <span className="desktop-only">Favoris</span>
-          </button>
-          <button 
-            className={`nav-icon-btn ${showMessages ? 'active-link' : ''}`}
-            onClick={() => { setShowMessages(true); setSelectedListing(null); }}
-          >
-            <MessageCircle size={24} />
-            <span className="desktop-only">Messages</span>
-          </button>
+          {user && (
+            <>
+              <button className="nav-icon-btn">
+                <Bell size={24} />
+                <span className="desktop-only">Mes recherches</span>
+              </button>
+              <button className="nav-icon-btn">
+                <Heart size={24} />
+                <span className="desktop-only">Favoris</span>
+              </button>
+              <button 
+                className={`nav-icon-btn ${showMessages ? 'active-link' : ''}`}
+                onClick={() => { setShowMessages(true); setSelectedListing(null); }}
+              >
+                <MessageCircle size={24} />
+                <span className="desktop-only">Messages</span>
+              </button>
+            </>
+          )}
           {!loading && (
             user
               ? <UserMenu
-                  onOpenMessages={() => { setShowMessages(true); setSelectedListing(null); }}
+                  onOpenMessages={() => { setShowMessages(true); setSelectedListing(null); setShowMyListings(false); }}
+                  onOpenMyListings={() => { setShowMyListings(true); setShowMessages(false); setSelectedListing(null); }}
                   onCreateListing={() => setShowCreateModal(true)}
                 />
               : <button className="nav-icon-btn" onClick={() => setShowAuthModal(true)}>
+
                   <User size={24} />
                   <span className="desktop-only">Se connecter</span>
                 </button>
@@ -274,9 +455,117 @@ function App() {
             >
               <MessagingView onBack={() => setShowMessages(false)} />
             </motion.div>
+          ) : showMyListings ? (
+            <motion.div
+              key="my-listings-view"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="container" style={{ paddingTop: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                  <button className="btn-icon-circular" onClick={() => setShowMyListings(false)}>
+                    <X size={20} />
+                  </button>
+                  <h2 style={{ fontSize: '2rem', fontWeight: 700 }}>Mes annonces</h2>
+                </div>
+
+                <div className="my-listings-tabs">
+                  <button className="my-listings-tab active">En ligne ({myListings.length})</button>
+                  <button className="my-listings-tab">Expirées (0)</button>
+                </div>
+                
+                <div className="my-listings-filters">
+                   <div className="filter-search-group">
+                      <div className="filter-search-input">
+                        <Search size={18} />
+                        <input type="text" placeholder="Recherchez dans vos annonces" />
+                      </div>
+                      <div className="filter-dropdown">
+                        <Menu size={16} />
+                        <span>Catégories</span>
+                        <ChevronDown size={14} />
+                      </div>
+                      <button className="btn-search-ads">Rechercher</button>
+                   </div>
+                   <div className="filter-sort">
+                      <span>Trier par:</span>
+                      <div className="sort-dropdown">
+                        <span>Date</span>
+                        <ChevronDown size={14} />
+                      </div>
+                   </div>
+                </div>
+
+                <div className="bulk-actions-row">
+                   <div className="bulk-item disabled"><TrendingUp size={16} /> Remontez votre annonce</div>
+                   <div className="bulk-item disabled"><Star size={16} /> À la une</div>
+                   <div className="bulk-item disabled"><Watch size={16} /> Logo Urgent</div>
+                   <div className="bulk-item disabled"><Coffee size={16} /> Pause</div>
+                   <div className="bulk-item disabled"><Truck size={16} /> Réactiver</div>
+                   <div className="bulk-item disabled"><X size={16} /> Supprimer</div>
+                </div>
+                
+                <div className="my-listings-list">
+                  {myListings.map((listing) => (
+                    <div key={listing.id} className="my-listing-horizontal-card">
+                       <div className="my-listing-checkbox">
+                          <div className="custom-checkbox" />
+                       </div>
+                       <div className="my-listing-main" onClick={() => openListing(listing)} style={{ cursor: 'pointer' }}>
+
+                          <div className="my-listing-image">
+                             <img src={listing.image} alt={listing.title} />
+                          </div>
+                          <div className="my-listing-details">
+                             <h4 className="my-listing-title">{listing.title}</h4>
+                             <div className="my-listing-price-row">
+                                <span className="my-listing-price">{listing.price.toLocaleString('fr-FR')} €</span>
+                                {listing.delivery && <span className="delivery-badge-mini">Livraison</span>}
+                             </div>
+                             <p className="my-listing-meta-text">{CATEGORY_MAP[listing.category_slug]} • Créée le {listing.created_at}</p>
+                             
+                             <div className="my-listing-actions-detailed">
+                                <button className="btn-boost">Vendez plus vite</button>
+                                <button className="btn-action-outline">Mettre en pause</button>
+                                <button className="btn-action-outline">Modifier gratuitement</button>
+                                <button className="btn-icon-delete" onClick={() => setMyListings(prev => prev.filter(l => l.id !== listing.id))}>
+                                   <X size={18} />
+                                </button>
+                             </div>
+                          </div>
+                          <div className="my-listing-stats-sidebar">
+                             <div className="stat-item">
+                                <Search size={14} />
+                                <span>604</span>
+                             </div>
+                             <div className="stat-item">
+                                <Heart size={14} />
+                                <span>11</span>
+                             </div>
+                             <div className="stat-item">
+                                <MessageCircle size={14} />
+                                <span>16</span>
+                             </div>
+                             <div className="stat-performance-header">
+                                <span>Performance</span>
+                                <ChevronDown size={14} />
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                  ))}
+                  <div className="create-listing-card-placeholder" onClick={() => setShowCreateModal(true)} style={{ marginTop: '2rem' }}>
+                    <PlusSquare size={48} color="var(--primary)" />
+                    <p>Déposer une nouvelle annonce</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           ) : !selectedListing ? (
             <motion.div 
               key="list-view"
+
 // ... (rest of the list view code)
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -407,6 +696,33 @@ function App() {
                   </div>
                 </section>
               )}
+
+              {/* Feed Banners (Banner type ads, matching leboncoin mobile feed) */}
+              {ads.some(a => a.type === 'banner' && a.status === 'active') && (
+                <section className="container sponsored-banners-section">
+                  {ads.filter(a => a.type === 'banner' && a.status === 'active').map(ad => (
+                    <a key={ad.id} href={ad.url || "#"} target="_blank" rel="noopener noreferrer" className="promoted-banner-feed-link">
+                      <div className="promoted-banner-feed">
+                        <div className="promoted-banner-content">
+                          <div className="ad-mini-logo">
+                            {ad.tagline?.charAt(0) || 'A'}
+                          </div>
+                          <div className="promoted-banner-main">
+                             <h4>{ad.name}</h4>
+                             <p className="ad-description-mini">{ad.description}</p>
+                             <span className="promoted-banner-tag-text">{ad.tagline || 'Sponsorisé'}</span>
+                          </div>
+                          <button className="btn-banner-open">
+                            Ouvrir <span>›</span>
+                          </button>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+
+                </section>
+              )}
+
 
               {/* Sell Banner */}
               <section className="container sell-banner-section">

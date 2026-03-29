@@ -1,7 +1,8 @@
 :root {
-  --primary: #00875A; /* Neighborly Green */
-  --primary-hover: #00704a;
-  --accent: #F56B2A; /* Contrast Orange */
+  --primary: #F56B2A; /* Leboncoin Orange */
+  --primary-hover: #e05a1f;
+  --accent: #00875A; /* Success Green */
+
   --secondary: #242424;
   --text: #242424;
   --text-secondary: #717171;

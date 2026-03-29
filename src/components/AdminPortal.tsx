@@ -20,6 +20,10 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
   const [newAdName, setNewAdName] = useState('');
   const [newAdImage, setNewAdImage] = useState('');
   const [newAdType, setNewAdType] = useState<'skyscrapper' | 'promoted' | 'banner'>('promoted');
+  const [newAdMetadata, setNewAdMetadata] = useState('');
+  const [newAdPhotos, setNewAdPhotos] = useState<string[]>([]);
+
+
 
   const addAd = () => {
     if (!newAdName) return;
@@ -32,13 +36,20 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
        clicks: 0,
        ctr: '0%',
        imageUrl: newAdImage || 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=400&fit=crop',
-       startDate: new Date().toLocaleDateString('fr-FR')
+       startDate: new Date().toLocaleDateString('fr-FR'),
+       metadata: newAdMetadata,
+       photos: newAdPhotos
     };
+
     setAds([ad, ...ads]);
     setShowAddModal(false);
     setNewAdName('');
     setNewAdImage('');
+    setNewAdMetadata('');
+    setNewAdPhotos([]);
   };
+
+
 
   const stats = [
     { label: 'Revenus Publicitaires', value: '14,250.00 €', trend: '+12.5%', isUp: true },
@@ -153,6 +164,57 @@ export default function AdminPortal({ onClose, ads, setAds }: Props) {
                                <option value="banner">Bannière (Large)</option>
                             </select>
                          </div>
+                         <div className="admin-form-group">
+                            <label>Photos Additionnelles</label>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                               {newAdPhotos.map((p, idx) => (
+                                  <div key={idx} style={{ 
+                                     width: '60px', height: '60px', borderRadius: '4px', overflow: 'hidden', position: 'relative' 
+                                  }}>
+                                     <img src={p} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                     <button 
+                                        onClick={() => setNewAdPhotos(prev => prev.filter((_, i) => i !== idx))}
+                                        style={{ 
+                                           position: 'absolute', top: 2, right: 2, background: 'rgba(0,0,0,0.5)', color: 'white', 
+                                           borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', 
+                                           alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' 
+                                        }}
+                                     >X</button>
+                                  </div>
+                               ))}
+                               <button 
+                                  onClick={() => setNewAdPhotos(prev => [...prev, `https://picsum.photos/400/300?random=${Math.random()}`])}
+                                  style={{ 
+                                     width: '60px', height: '60px', border: '1px dashed var(--border)', borderRadius: '4px', 
+                                     display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', background: 'none',
+                                     cursor: 'pointer'
+                                  }}
+                               >
+                                  <Plus size={16} />
+                               </button>
+                            </div>
+                         </div>
+                         <div className="admin-form-group">
+
+                            <label>Méta-données (JSON ou description)</label>
+                            <textarea 
+                               value={newAdMetadata} 
+                               onChange={e => setNewAdMetadata(e.target.value)} 
+                               placeholder='{"region": "Paris", "target": "youth"}'
+                               style={{ 
+                                  width: '100%', 
+                                  minHeight: '80px', 
+                                  borderRadius: '8px', 
+                                  border: '1px solid var(--border)',
+                                  padding: '10px',
+                                  fontSize: '13px',
+                                  outline: 'none',
+                                  fontFamily: 'monospace',
+                                  resize: 'vertical'
+                               }}
+                            />
+                         </div>
+
                          <div className="admin-inner-modal-actions">
                             <button className="btn-cancel" onClick={() => setShowAddModal(false)}>Annuler</button>
                             <button className="btn-confirm" onClick={addAd}>Créer</button>

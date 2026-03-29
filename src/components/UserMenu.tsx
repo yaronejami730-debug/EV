@@ -5,10 +5,12 @@ import { useAuth } from '../hooks/useAuth';
 
 interface Props {
   onOpenMessages: () => void;
+  onOpenMyListings: () => void;
   onCreateListing: () => void;
 }
 
-export default function UserMenu({ onOpenMessages, onCreateListing }: Props) {
+export default function UserMenu({ onOpenMessages, onOpenMyListings, onCreateListing }: Props) {
+
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -89,10 +91,15 @@ export default function UserMenu({ onOpenMessages, onCreateListing }: Props) {
                 <Heart size={16} />
                 <span>Mes favoris</span>
               </button>
+              <button className="dropdown-item" onClick={() => { setOpen(false); onOpenMyListings(); }}>
+                <PlusSquare size={16} />
+                <span>Mes annonces</span>
+              </button>
               <button className="dropdown-item" onClick={() => { setOpen(false); onOpenMessages(); }}>
                 <MessageCircle size={16} />
                 <span>Mes messages</span>
               </button>
+
             </div>
 
             <div className="dropdown-divider" />
