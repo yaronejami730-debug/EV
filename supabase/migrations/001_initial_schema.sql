@@ -20,6 +20,7 @@ create table public.profiles (
   location_lat double precision,
   location_lng double precision,
   is_verified boolean default false,
+  is_admin boolean default false,
   rating_avg numeric(3,2) default 0,
   rating_count integer default 0,
   created_at timestamptz default now(),
@@ -36,6 +37,16 @@ create policy "Utilisateur modifie son profil" on public.profiles
 
 create policy "Création profil auto" on public.profiles
   for insert with check (auth.uid() = id);
+
+create policy "Admins voient tout" on public.profiles
+  for select using (
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
+
+create policy "Admins modifient tout" on public.profiles
+  for update using (
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
 
 -- Trigger pour créer un profil automatiquement à l'inscription
 create or replace function public.handle_new_user()
@@ -150,6 +161,11 @@ create policy "Utilisateur modifie ses annonces" on public.listings
 
 create policy "Utilisateur supprime ses annonces" on public.listings
   for delete using (auth.uid() = user_id);
+
+create policy "Admins gèrent tout" on public.listings
+  for all using (
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
 
 -- Index pour les recherches
 create index listings_category_idx on public.listings(category_id);
