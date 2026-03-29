@@ -132,7 +132,7 @@ create table public.listings (
   -- Métadonnées
   is_boosted boolean default false,
   boosted_until timestamptz,
-  expires_at timestamptz default (now() + interval '60 days'),
+  expires_at timestamptz default (now() + interval '90 days'),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
+  Search as SearchIcon,
+  X,
+  Plus,
   MapPin,
   Heart,
   PlusSquare,
@@ -14,7 +17,8 @@ import {
   Watch,
   Gamepad,
   Coffee,
-  Truck
+  Truck,
+  TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessagingView from './components/MessagingView';
@@ -38,160 +42,19 @@ const CATEGORIES = [
   { id: '6', name: 'Maison', icon: Coffee, slug: 'home' },
 ];
 
-const LISTINGS: any[] = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    numericId: 3032093301,
-    user_id: '550e8400-e29b-41d4-a716-446655440009',
-    title: 'BMW Série 3 M Sport - Toit ouvrant',
-    price: 42900,
-    location_city: 'Lyon (69002)',
-    created_at: 'Aujourd\'hui, 10:15',
-    images: [
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1200&auto=format&fit=crop',
-    ],
-    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=800&auto=format&fit=crop',
-    category_slug: 'auto',
-    delivery: false,
-    pro: true,
-    views: 1842,
-    description: `BMW Série 3 M Sport en excellent état. Véhicule de 2020 avec 45 000 km au compteur.\n\nÉquipements :\n- Toit ouvrant panoramique\n- Sièges sport M\n- Écran tactile iDrive 7\n- Caméra de recul 360°\n- Régulateur de vitesse adaptatif\n- Jantes M 18 pouces\n\nHistorique complet disponible. Contrôle technique valide jusqu'en 2026. Carnet d'entretien BMW suivi. Première main. Aucun frais à prévoir.`,
-    criteria: {
-      'Marque': 'BMW',
-      'Modèle': 'Série 3',
-      'Version': 'M Sport',
-      'Année': '2020',
-      'Kilométrage': '45 000 km',
-      'Carburant': 'Essence',
-      'Boîte': 'Automatique',
-      'Carrosserie': 'Berline',
-      'Couleur': 'Blanc Alpinweiss',
-      'Puissance': '184 ch',
-      'Nb. portes': '4 portes',
-      'CT': 'Valide',
-      '1ère main': 'Oui',
-    },
-    seller: {
-      id: '550e8400-e29b-41d4-a716-446655440009',
-      full_name: 'Lyon Auto Premium',
-      is_verified: true,
-      rating_avg: 4.7,
-      rating_count: 156,
-      location_city: 'Lyon',
-      member_since: 'mars 2018',
-    }
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    numericId: 2987654321,
-    user_id: '550e8400-e29b-41d4-a716-446655440008',
-    title: 'Sony PS5 Slim + 2 Manettes + 3 Jeux',
-    price: 450,
-    location_city: 'Bordeaux (33000)',
-    created_at: 'Hier, 19:45',
-    images: [
-      'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1625805866449-3977bbd60e8d?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1619894991209-9f9694be045a?q=80&w=1200&auto=format&fit=crop',
-    ],
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=800&auto=format&fit=crop',
-    category_slug: 'recreation',
-    delivery: true,
-    pro: false,
-    views: 347,
-    description: `PS5 Slim achetée en janvier 2024, vendue car je n'ai plus le temps d'y jouer.\n\nContenu :\n- Console PS5 Slim (édition disc)\n- 2 manettes DualSense (noire + blanche)\n- FIFA 25\n- Spider-Man 2\n- God of War Ragnarök\n\nTout fonctionne parfaitement. Emballage d'origine conservé. Livraison possible en colissimo suivi.`,
-    criteria: {
-      'État': 'Très bon état',
-      'Marque': 'Sony',
-      'Modèle': 'PlayStation 5 Slim',
-      'Livraison': 'Disponible',
-    },
-    seller: {
-      id: '550e8400-e29b-41d4-a716-446655440008',
-      full_name: 'Thomas R.',
-      is_verified: true,
-      rating_avg: 5.0,
-      rating_count: 8,
-      location_city: 'Bordeaux',
-      member_since: 'juin 2022',
-    }
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440004',
-    numericId: 1876543210,
-    user_id: '550e8400-e29b-41d4-a716-446655440007',
-    title: 'Veste en cuir vintage - Taille L',
-    price: 85,
-    location_city: 'Marseille (13008)',
-    created_at: 'Hier, 16:30',
-    images: [
-      'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop',
-    ],
-    image: 'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?q=80&w=800&auto=format&fit=crop',
-    category_slug: 'fashion',
-    delivery: true,
-    pro: false,
-    views: 128,
-    description: `Veste en cuir véritable des années 90, style biker vintage. Taille L (fits M/L).\n\nTrès bon état général, cuir souple et patine naturelle. Quelques légères marques d'usure conformes à l'âge (visibles sur photos).\n\nMarque : Wilson Leather\nCouleur : Marron cognac\nDoublure : 100% soie\n\nExpédition soignée sous 48h en Colissimo suivi.`,
-    criteria: {
-      'État': 'Très bon état',
-      'Taille': 'L',
-      'Matière': 'Cuir véritable',
-      'Couleur': 'Marron cognac',
-      'Livraison': 'Disponible',
-    },
-    seller: {
-      id: '550e8400-e29b-41d4-a716-446655440007',
-      full_name: 'Sara K.',
-      is_verified: false,
-      rating_avg: 4.5,
-      rating_count: 12,
-      location_city: 'Marseille',
-      member_since: 'janv. 2023',
-    }
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440022',
-    numericId: 4400998811,
-    user_id: '550e8400-e29b-41d4-a716-446655440008',
-    title: 'Tonitruante Tondeuse Honda - À louer',
-    price: 30,
-    location_city: 'Nantes (44000)',
-    created_at: 'Aujourd\'hui, 11:20',
-    images: ['https://images.unsplash.com/photo-1592819695396-0661b5ee144e?q=80&w=800&auto=format&fit=crop'],
-    image: 'https://images.unsplash.com/photo-1592819695396-0661b5ee144e?q=80&w=400&auto=format&fit=crop',
-    category_slug: 'home',
-    delivery: false,
-    pro: false,
-    views: 42,
-    description: 'Une tondeuse qui déchire tout ! Pour vos grands jardins.',
-    seller: { id: 's22', full_name: 'Jean P.', is_verified: true, rating_avg: 4.9, rating_count: 31, location_city: 'Nantes' }
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440033',
-    numericId: 3300998811,
-    user_id: '550e8400-e29b-41d4-a716-446655440009',
-    title: 'Location Tesla Model 3',
-    price: 150,
-    location_city: 'Paris (75008)',
-    created_at: 'Il y a 2h',
-    images: ['https://images.unsplash.com/photo-1560958089-b8a1929cea89?q=80&w=800&auto=format&fit=crop'],
-    image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?q=80&w=400&auto=format&fit=crop',
-    category_slug: 'auto',
-    delivery: true,
-    pro: true,
-    views: 890,
-    description: 'Tout confort, autopilot, recharge illimitée.',
-    seller: { id: 's33', full_name: 'VTC Elite', is_verified: true, rating_avg: 4.8, rating_count: 512, location_city: 'Paris' }
-  }
-];
+interface Ad {
+  id: string;
+  name: string;
+  type: 'skyscrapper' | 'promoted' | 'banner';
+  status: 'active' | 'paused' | 'ended';
+  views: number;
+  clicks: number;
+  ctr: string;
+  imageUrl: string;
+  startDate: string;
+}
+
+const LISTINGS: any[] = [];
 
 function App() {
   const { user, loading } = useAuth();
@@ -202,15 +65,55 @@ function App() {
   const [showMessages, setShowMessages] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(
+    () => window.location.hash === '#admin'
+  );
+
+  useEffect(() => {
+    const handler = () => {
+      setIsAdminOpen(window.location.hash === '#admin');
+    };
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+
+  function openAdmin() {
+    window.location.hash = 'admin';
+    setIsAdminOpen(true);
+  }
+
+  function closeAdmin() {
+    window.location.hash = '';
+    setIsAdminOpen(false);
+  }
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [titleOnly, setTitleOnly] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('recent_searches') || '[]');
+    } catch { return []; }
+  });
+
   const [viewedListings, setViewedListings] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem('viewed_listings');
       return new Set(stored ? JSON.parse(stored) : []);
-    } catch {
-      return new Set();
-    }
+    } catch { return new Set(); }
   });
+
+  const CATEGORY_MAP: Record<string, string> = {
+    'auto': 'Voitures',
+    'realestate': 'Immobilier',
+    'tech': 'Multimédia',
+    'home': 'Maison & Jardin',
+    'fashion': 'Mode',
+    'recreation': 'Loisirs',
+    'services': 'Services',
+    'jobs': 'Emploi',
+    'animals': 'Animaux',
+    'other': 'Autres'
+  };
 
   function openListing(listing: any) {
     setSelectedListing(listing);
@@ -227,10 +130,11 @@ function App() {
     
     const matchesCategory = activeCategory === 'all' || listing.category_slug === activeCategory;
     
-    const matchesSearch = 
-      listing.title.toLowerCase().includes(query) || 
-      (listing.description && listing.description.toLowerCase().includes(query)) ||
-      (listing.seller && listing.seller.full_name.toLowerCase().includes(query));
+    const matchesSearch = titleOnly 
+      ? listing.title.toLowerCase().includes(query)
+      : (listing.title.toLowerCase().includes(query) || 
+         (listing.description && listing.description.toLowerCase().includes(query)) ||
+         (listing.seller && listing.seller.full_name.toLowerCase().includes(query)));
 
     const matchesLocation = 
       !location || 
@@ -238,6 +142,19 @@ function App() {
 
     return matchesCategory && matchesSearch && matchesLocation;
   });
+
+  const addToRecent = (q: string) => {
+    if (!q.trim()) return;
+    const next = [q, ...recentSearches.filter(s => s !== q)].slice(0, 5);
+    setRecentSearches(next);
+    localStorage.setItem('recent_searches', JSON.stringify(next));
+  };
+
+  const removeRecent = (q: string) => {
+     const next = recentSearches.filter(s => s !== q);
+     setRecentSearches(next);
+     localStorage.setItem('recent_searches', JSON.stringify(next));
+  };
 
   return (
     <div className="app">
@@ -249,17 +166,31 @@ function App() {
             exit={{ opacity: 0, scale: 0.98 }}
             className="admin-overlay"
           >
-            <AdminPortal onClose={() => setIsAdminOpen(false)} />
+            <AdminPortal 
+              onClose={closeAdmin} 
+              ads={ads}
+              setAds={setAds}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Side Banners (Desktop Sky-scrapers) */}
+      {/* Side Banners (Live Skyscrapers) */}
       <div className="side-banner side-banner-left desktop-only">
-        <img src="/Users/yarone/.gemini/antigravity/brain/868fe8d0-90b4-4a35-bf8d-718b65e83e04/side_banner_travel_1774813363000.png" alt="Publicité" />
+        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').slice(0, 1).map(ad => (
+           <img key={ad.id} src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+        ))}
+        {!ads.some(a => a.type === 'skyscrapper' && a.status === 'active') && (
+           <div className="skyscraper-placeholder-mini">Publicité</div>
+        )}
       </div>
       <div className="side-banner side-banner-right desktop-only">
-        <img src="/Users/yarone/.gemini/antigravity/brain/868fe8d0-90b4-4a35-bf8d-718b65e83e04/side_banner_travel_1774813363000.png" alt="Publicité" />
+        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').slice(1, 2).map(ad => (
+           <img key={ad.id} src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+        ))}
+        {ads.filter(a => a.type === 'skyscrapper' && a.status === 'active').length < 2 && (
+           <div className="skyscraper-placeholder-mini">Publicité</div>
+        )}
       </div>
 
       {/* Header */}
@@ -363,8 +294,66 @@ function App() {
                         type="text" 
                         placeholder="Chercher un objet, un service..." 
                         value={searchQuery}
+                        onFocus={() => setShowSearchSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addToRecent(searchQuery)}
                       />
+                      
+                      <AnimatePresence>
+                        {showSearchSuggestions && (
+                          <motion.div 
+                            className="search-suggestions-dropdown"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                          >
+                            <label className="suggestion-filter-row" onClick={(e) => e.stopPropagation()}>
+                              <div className={`custom-checkbox ${titleOnly ? 'checked' : ''}`} onClick={() => setTitleOnly(!titleOnly)}>
+                                {titleOnly && <Plus size={14} style={{ transform: 'rotate(45deg)' }} />}
+                              </div>
+                              <span>Recherche dans le titre uniquement</span>
+                            </label>
+
+                            <div className="suggestion-divider" />
+
+                            {recentSearches.length > 0 && !searchQuery && (
+                              <section className="suggestion-section">
+                                <h6>Recherches récentes</h6>
+                                {recentSearches.map(s => (
+                                  <div key={s} className="suggestion-item">
+                                    <div className="suggestion-item-left" onClick={() => { setSearchQuery(s); addToRecent(s); }}>
+                                      <TrendingUp size={16} color="#aaa" />
+                                      <span>{s}</span>
+                                    </div>
+                                    <button className="remove-suggestion" onClick={() => removeRecent(s)}><X size={14} /></button>
+                                  </div>
+                                ))}
+                              </section>
+                            )}
+
+                            {searchQuery && (
+                              <section className="suggestion-section">
+                                <h6>Suggestions</h6>
+                                {Object.entries(CATEGORY_MAP).slice(0, 4).map(([slug, name]) => (
+                                  <div key={slug} className="suggestion-item" onClick={() => { setActiveCategory(slug); addToRecent(searchQuery); }}>
+                                    <div className="suggestion-item-left">
+                                      <SearchIcon size={16} color="#aaa" />
+                                      <span>{searchQuery} dans <strong style={{ color: 'var(--accent)' }}>{name}</strong></span>
+                                    </div>
+                                  </div>
+                                ))}
+                                <div className="suggestion-item" onClick={() => addToRecent(searchQuery)}>
+                                  <div className="suggestion-item-left">
+                                    <SearchIcon size={16} color="#aaa" />
+                                    <span><strong>{searchQuery}</strong> dans toute la France</span>
+                                  </div>
+                                </div>
+                              </section>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                     <div className="search-field">
                       <MapPin size={20} color="var(--primary)" />
@@ -399,23 +388,25 @@ function App() {
               </section>
 
               {/* Advertisers / Promoted Section */}
-              <section className="container ads-container">
-                <div className="promoted-header">
-                  <span className="promoted-tag">Sponsorisé</span>
-                </div>
-                <div className="promoted-grid">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="promoted-card-mini">
-                      <div className="promoted-img-wrapper">
-                         <img src={`https://images.unsplash.com/photo-${1580000000000 + i}?auto=format&fit=crop&w=300&q=80`} alt="" />
-                         <span className="price-tag-mini">{12000 + i * 500} €</span>
+              {/* Live Promoted Section */}
+              {ads.some(a => a.type === 'promoted' && a.status === 'active') && (
+                <section className="container ads-container">
+                  <div className="promoted-header">
+                    <span className="promoted-tag">Sponsorisé</span>
+                  </div>
+                  <div className="promoted-grid">
+                    {ads.filter(a => a.type === 'promoted' && a.status === 'active').map((ad) => (
+                      <div key={ad.id} className="promoted-card-mini">
+                        <div className="promoted-img-wrapper">
+                           <img src={ad.imageUrl} alt={ad.name} className="ad-img-full" />
+                        </div>
+                        <p>{ad.name}</p>
+                        <span className="promoted-link">sponsorisé</span>
                       </div>
-                      <p>Chalet bois en kit</p>
-                      <span className="promoted-link">chaletjardin.fr</span>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Sell Banner */}
               <section className="container sell-banner-section">
@@ -499,6 +490,7 @@ function App() {
                   </AnimatePresence>
                 </div>
               </div>
+              <MegaFooter />
             </motion.div>
           ) : (
             <motion.div
@@ -572,7 +564,7 @@ function App() {
               <h4>DES QUESTIONS ?</h4>
               <ul>
                 <li>Aide</li>
-                <li onClick={() => setIsAdminOpen(true)} className="admin-access-link">Portail Admin (Publicité)</li>
+                <li onClick={openAdmin} className="admin-access-link">Portail Admin (Publicité)</li>
                 <li>Le service de paiement sécurisé</li>
                 <li>Le porte-monnaie</li>
                 <li>Le service de livraison</li>
@@ -588,6 +580,88 @@ function App() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function MegaFooter() {
+  const categories = [
+    { title: 'EMPLOI', items: ["Offres d'emploi", 'Formations professionnelles'] },
+    { title: 'VÉHICULES', items: ['Voitures', 'Motos', 'Caravaning', 'Utilitaires', 'Camions', 'Nautisme', 'Équipement auto', 'Équipement moto', 'Équipement caravaning', 'Équipement nautisme'] },
+    { title: 'IMMOBILIER', items: ['Ventes immobilières', 'Locations', 'Colocations', 'Bureaux & Commerces'] },
+    { title: 'MODE', items: ['Vêtements', 'Chaussures', 'Accessoires & Bagagerie', 'Montres & Bijoux'] },
+    { title: 'LOCATIONS DE VACANCES', items: ['Locations saisonnières'] },
+    { title: 'LOISIRS', items: ['Antiquités', 'Collection', 'CD - Musique', 'DVD - Films', 'Instruments de musique', 'Livres', 'Modélisme', 'Vins & Gastronomie', 'Jeux & Jouets', 'Loisirs créatifs', 'Sport & Plein air', 'Vélos', 'Équipements vélos'] },
+    { title: 'ANIMAUX', items: ['Animaux', 'Accessoires animaux', 'Animaux perdus'] },
+    { title: 'ÉLECTRONIQUE', items: ['Ordinateurs', 'Accessoires informatique', 'Tablettes & Liseuses', 'Photo, audio & vidéo', 'Téléphones & Objets connectés', 'Accessoires téléphone & Objets connectés', 'Consoles', 'Jeux vidéo'] },
+    { title: 'SERVICES', items: ['Artistes & Musiciens', 'Baby-Sitting', 'Billetterie', 'Covoiturage', 'Cours particuliers', 'Entraide entre voisins', 'Évènements', 'Services à la personne', 'Services aux animaux', 'Services de déménagement', 'Services de réparations électroniques', 'Services de réparations mécaniques', 'Services de jardinier & bricolage', 'Services évènementiels', 'Autres services'] },
+    { title: 'FAMILLE', items: ['Équipement bébé', 'Mobilier enfant', 'Vêtements bébé'] },
+    { title: 'MAISON & JARDIN', items: ['Ameublement', 'Papeterie & Fournitures scolaires', 'Électroménager', 'Arts de la table', 'Décoration', 'Linge de maison', 'Bricolage', 'Jardin & Plantes'] },
+    { title: 'MATÉRIEL PROFESSIONNEL', items: ['Tracteurs', 'Matériel agricole', 'BTP - Chantier gros-oeuvre', 'Poids lourds', 'Manutention - Levage', 'Équipements industriels', 'Équipements pour restaurants & hôtels', 'Équipements & Fournitures de bureau', 'Équipements pour commerces & marchés', 'Matériel médical'] },
+    { title: 'DIVERS', items: ['Autres'] }
+  ];
+
+  const regions = [
+    { title: 'OUEST', items: ['Basse-Normandie', 'Bretagne', 'Pays de la Loire', 'Poitou-Charentes'] },
+    { title: 'SUD-OUEST', items: ['Aquitaine', 'Midi-Pyrénées'] },
+    { title: 'SUD-EST', items: ['Corse', 'Languedoc-Roussillon', 'Provence-Alpes-Côte d\'Azur', 'Rhône-Alpes'] },
+    { title: 'EST', items: ['Alsace', 'Bourgogne', 'Champagne-Ardenne', 'Franche-Comté', 'Lorraine'] },
+    { title: 'NORD', items: ['Haute-Normandie', 'Nord-Pas-de-Calais', 'Picardie'] },
+    { title: 'CENTRE', items: ['Auvergne', 'Centre', 'Ile-de-France', 'Limousin'] },
+    { title: 'DROM', items: ['Guadeloupe', 'Martinique', 'Guyane', 'Réunion'] }
+  ];
+
+  return (
+    <div className="mega-footer">
+      <div className="container">
+        <div className="mega-grid">
+          {categories.map((cat, i) => (
+            <div key={i} className="mega-col">
+              <h4>{cat.title}</h4>
+              <ul>
+                {cat.items.map(item => <li key={item}><a href="#">{item}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="mega-divider" />
+
+        <div className="mega-grid regions">
+          {regions.map((reg, i) => (
+            <div key={i} className="mega-col">
+              <h4>{reg.title}</h4>
+              <ul>
+                {reg.items.map(item => <li key={item}><a href="#">{item}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="bottom-footer">
+        <div className="container bottom-footer-content">
+          <div className="footer-section">
+            <h5>À PROPOS DE VOISINS</h5>
+            <p>Le 1er site neighborly en France.</p>
+          </div>
+          <div className="footer-section">
+            <h5>INFORMATIONS LÉGALES</h5>
+            <ul>
+              <li><a href="#">CGU</a></li>
+              <li><a href="#">Vie privée</a></li>
+            </ul>
+          </div>
+          <div className="footer-section">
+             <h5>NOS SOLUTIONS PROS</h5>
+             <p>Boostez votre visibilité locale.</p>
+          </div>
+          <div className="footer-section">
+             <h5>DES QUESTIONS ?</h5>
+             <p>On est là pour vous aider.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

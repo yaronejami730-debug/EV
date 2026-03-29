@@ -3871,10 +3871,288 @@
 .table-actions button:hover { background: #f0f2f5; }
 .table-actions button.delete:hover { background: #feebeb; color: #f02849; }
 
-.admin-access-link {
-  color: var(--primary) !important;
-  font-weight: 700;
-  cursor: pointer;
+.admin-access-link:hover { text-decoration: underline; }
+
+/* ─────────────────────────────────────────
+   Search Suggestions Dropdown
+───────────────────────────────────────── */
+.search-field { position: relative; }
+
+.search-suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: -100px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  z-index: 1000;
+  padding: 16px;
+  min-width: 440px;
 }
 
-.admin-access-link:hover { text-decoration: underline; }
+@media (max-width: 768px) {
+  .search-suggestions-dropdown {
+    right: 0;
+    min-width: 0;
+  }
+}
+
+.suggestion-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+
+.suggestion-filter-row:hover { background: #e8eaed; }
+.suggestion-filter-row span { font-weight: 500; font-size: 14px; }
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: white;
+}
+
+.custom-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.suggestion-divider {
+  height: 1px;
+  background: #eee;
+  margin: 12px 0;
+}
+
+.suggestion-section { margin-bottom: 16px; }
+.suggestion-section h6 {
+  font-size: 14px;
+  color: #1c1e21;
+  margin-bottom: 12px;
+  padding-left: 8px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-item:hover { background: #f0f2f5; }
+
+.suggestion-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.suggestion-item-left span { font-size: 15px; color: #1c1e21; }
+.suggestion-item-left strong { border-bottom: 1px solid transparent; }
+
+.remove-suggestion {
+  padding: 6px;
+  border-radius: 50%;
+  color: #aaa;
+  transition: all 0.2s;
+}
+
+.remove-suggestion:hover { background: #e4e6eb; color: #1c1e21; }
+
+/* ─────────────────────────────────────────
+   Mega Footer
+───────────────────────────────────────── */
+.mega-footer {
+  background: white;
+  padding-top: 60px;
+  border-top: 1px solid #ddd;
+  margin-top: 80px;
+}
+
+.mega-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-bottom: 60px;
+}
+
+@media (max-width: 900px) {
+  .mega-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .mega-grid { grid-template-columns: 1fr; }
+}
+
+.mega-col h4 {
+  font-size: 14px;
+  color: #1c1e21;
+  font-weight: 800;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mega-col ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mega-col ul li a {
+  font-size: 13px;
+  color: #65676b;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.mega-col ul li a:hover {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+.mega-divider {
+  height: 1px;
+  background: #eee;
+  margin: 40px 0;
+}
+
+.mega-grid.regions {
+  margin-bottom: 80px;
+}
+
+.bottom-footer {
+  background: #2a3b4c;
+  color: white;
+  padding: 60px 0;
+}
+
+.bottom-footer-content {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .bottom-footer-content { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .bottom-footer-content { grid-template-columns: 1fr; }
+}
+
+.footer-section h5 {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.footer-section p {
+  font-size: 14px;
+  color: #b0b3b8;
+  line-height: 1.6;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-section ul li a {
+  color: #b0b3b8;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.footer-section ul li a:hover {
+  color: white;
+}
+
+/* ─────────────────────────────────────────
+   Admin Internal Modals
+───────────────────────────────────────── */
+.admin-inner-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.admin-inner-modal-box {
+  background: white;
+  width: 400px;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.admin-inner-modal-box h3 {
+  margin-bottom: 24px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.admin-form-group {
+  margin-bottom: 20px;
+}
+
+.admin-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #65676b;
+}
+
+.admin-form-group input,
+.admin-form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.admin-inner-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.admin-inner-modal-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.btn-cancel { background: #f0f2f5; color: #1c1e21; }
+.btn-confirm { background: var(--primary); color: white; }

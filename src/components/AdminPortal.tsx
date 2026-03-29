@@ -10,30 +10,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   onClose: () => void;
+  ads: any[];
+  setAds: (ads: any[]) => void;
 }
 
-interface Ad {
-  id: string;
-  name: string;
-  type: 'skyscrapper' | 'promoted' | 'banner';
-  status: 'active' | 'paused' | 'ended';
-  views: number;
-  clicks: number;
-  ctr: string;
-  thumbnail: string;
-  startDate: string;
-}
-
-const INITIAL_ADS: Ad[] = [
-  { id: '1', name: 'Transavia Sky-L', type: 'skyscrapper', status: 'active', views: 45200, clicks: 890, ctr: '1.97%', thumbnail: 'https://images.unsplash.com/photo-1436491865332-7a61a109c055?w=100&h=150&fit=crop', startDate: '24 Mar 2026' },
-  { id: '2', name: 'Chalet de Jardin Promo', type: 'promoted', status: 'active', views: 12400, clicks: 340, ctr: '2.74%', thumbnail: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=100&h=100&fit=crop', startDate: '28 Mar 2026' },
-  { id: '3', name: 'Elite VTC Global', type: 'banner', status: 'paused', views: 89000, clicks: 1200, ctr: '1.35%', thumbnail: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=50&fit=crop', startDate: '01 Mar 2026' },
-  { id: '4', name: 'Burger King Local', type: 'promoted', status: 'ended', views: 5600, clicks: 45, ctr: '0.80%', thumbnail: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=100&h=100&fit=crop', startDate: '15 Feb 2026' },
-];
-
-export default function AdminPortal({ onClose }: Props) {
+export default function AdminPortal({ onClose, ads, setAds }: Props) {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'ads' | 'users' | 'analytics'>('ads');
-  const ads = INITIAL_ADS;
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newAdName, setNewAdName] = useState('');
+  const [newAdImage, setNewAdImage] = useState('');
+  const [newAdType, setNewAdType] = useState<'skyscrapper' | 'promoted' | 'banner'>('promoted');
+
+  const addAd = () => {
+    if (!newAdName) return;
+    const ad: any = {
+       id: Math.random().toString(36).substr(2, 9),
+       name: newAdName,
+       type: newAdType,
+       status: 'active',
+       views: 0,
+       clicks: 0,
+       ctr: '0%',
+       imageUrl: newAdImage || 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=400&fit=crop',
+       startDate: new Date().toLocaleDateString('fr-FR')
+    };
+    setAds([ad, ...ads]);
+    setShowAddModal(false);
+    setNewAdName('');
+    setNewAdImage('');
+  };
 
   const stats = [
     { label: 'Revenus Publicitaires', value: '14,250.00 €', trend: '+12.5%', isUp: true },
@@ -122,10 +127,39 @@ export default function AdminPortal({ onClose }: Props) {
                     <h1>Gestion des Publicités</h1>
                     <p>Contrôlez et optimisez vos campagnes d'affichage.</p>
                   </div>
-                  <button className="btn-add-ad">
+                  <button className="btn-add-ad" onClick={() => setShowAddModal(true)}>
                     <Plus size={18} /> Nouvelle Campagne
                   </button>
                 </div>
+
+                {/* Quick Add Modal */}
+                {showAddModal && (
+                   <div className="admin-inner-modal">
+                      <div className="admin-inner-modal-box">
+                         <h3>Nouvelle Publicité</h3>
+                         <div className="admin-form-group">
+                            <label>Nom de la campagne</label>
+                            <input type="text" value={newAdName} onChange={e => setNewAdName(e.target.value)} placeholder="Ex: Promo Eté 2026" />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>URL de l'image (Ex: Unsplash)</label>
+                            <input type="text" value={newAdImage} onChange={e => setNewAdImage(e.target.value)} placeholder="https://..." />
+                         </div>
+                         <div className="admin-form-group">
+                            <label>Format</label>
+                            <select value={newAdType} onChange={e => setNewAdType(e.target.value as any)}>
+                               <option value="skyscrapper">Skyscraper (Côtés)</option>
+                               <option value="promoted">Sponsorisé (Grille)</option>
+                               <option value="banner">Bannière (Large)</option>
+                            </select>
+                         </div>
+                         <div className="admin-inner-modal-actions">
+                            <button className="btn-cancel" onClick={() => setShowAddModal(false)}>Annuler</button>
+                            <button className="btn-confirm" onClick={addAd}>Créer</button>
+                         </div>
+                      </div>
+                   </div>
+                )}
 
                 {/* Stats Cards */}
                 <div className="admin-stats-row">
